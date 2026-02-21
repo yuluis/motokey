@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoKey - Hardware Architecture & MVP Design</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0d1117;
+            --bg2: #161b22;
+            --bg3: #1c2333;
+            --text: #e6edf3;
+            --muted: #8b949e;
+            --green: #00d4aa;
+            --gold: #f0c040;
+            --red: #ff6b6b;
+            --blue: #4a9eff;
+            --purple: #b48eff;
+            --border: #30363d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 40px 24px;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        h1 span { color: var(--green); }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 1.1rem;
+            margin-bottom: 48px;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 48px 0 20px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            letter-spacing: -0.3px;
+        }
+
+        h2 .num {
+            color: var(--green);
+            margin-right: 8px;
+        }
+
+        h3 {
+            font-size: 1.15rem;
+            margin: 24px 0 12px;
+            color: var(--gold);
+        }
+
+        p, li { color: var(--muted); font-size: 0.95rem; }
+        p { margin-bottom: 12px; }
+        ul { margin-left: 20px; margin-bottom: 16px; }
+        li { margin-bottom: 4px; }
+        strong { color: var(--text); }
+
+        .diagram-box {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .diagram-box svg { width: 100%; height: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td { color: var(--text); }
+
+        .cost { color: var(--green); font-weight: 600; font-family: monospace; }
+        .subtotal { color: var(--gold); font-weight: 700; }
+        .highlight-row { background: rgba(0, 212, 170, 0.05); }
+        .total-row td { border-top: 2px solid var(--green); font-weight: 700; font-size: 1rem; }
+        .margin-good { color: var(--green); font-weight: 700; }
+        .margin-row td { background: rgba(0, 212, 170, 0.08); }
+
+        .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .cols-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+        .card {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .card h4 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .proto-note {
+            background: rgba(240, 192, 64, 0.08);
+            border: 1px solid rgba(240, 192, 64, 0.2);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 16px 0;
+        }
+
+        .proto-note strong { color: var(--gold); }
+        .proto-note p { color: var(--muted); margin: 0; }
+
+        .decision {
+            background: rgba(74, 158, 255, 0.08);
+            border: 1px solid rgba(74, 158, 255, 0.2);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 16px 0;
+        }
+
+        .decision strong { color: var(--blue); }
+
+        pre {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            font-size: 0.82rem;
+            color: var(--green);
+            line-height: 1.5;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--green);
+            text-decoration: none;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .cols, .cols-3 { grid-template-columns: 1fr; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+<a href="index.html" class="back-link">&larr; Back to storefront</a>
+
+<h1>MotoKey <span>Hardware Architecture</span></h1>
+<p class="subtitle">MVP design with real components. Goal: build cheap, sell profitably at $89 / $149.</p>
+
+<!-- ============================================ -->
+<h2><span class="num">1</span> System Overview</h2>
+
+<p>The whole system is three things: a <strong>lock box</strong> on the bike, a <strong>key fob</strong> in your pocket, and a <strong>security protocol</strong> binding them together. That's it.</p>
+
+<div class="diagram-box">
+<svg viewBox="0 0 900 340">
+    <!-- Key Fob -->
+    <rect x="30" y="100" width="200" height="140" rx="14" fill="#1a1a2e" stroke="#f0c040" stroke-width="2"/>
+    <text x="130" y="130" text-anchor="middle" fill="#f0c040" font-size="14" font-weight="bold" font-family="monospace">KEY FOB</text>
+    <text x="130" y="155" text-anchor="middle" fill="#8b949e" font-size="10" font-family="monospace">ATtiny85 MCU</text>
+    <text x="130" y="172" text-anchor="middle" fill="#8b949e" font-size="10" font-family="monospace">SYN115 TX (433MHz)</text>
+    <text x="130" y="189" text-anchor="middle" fill="#8b949e" font-size="10" font-family="monospace">CR2032 battery</text>
+    <text x="130" y="206" text-anchor="middle" fill="#8b949e" font-size="10" font-family="monospace">1 button</text>
+    <text x="130" y="225" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">48mm x 30mm x 10mm</text>
+
+    <!-- RF Signal -->
+    <line x1="230" y1="170" x2="350" y2="170" stroke="#f0c040" stroke-width="2" stroke-dasharray="8,4"/>
+    <text x="290" y="155" text-anchor="middle" fill="#f0c040" font-size="10" font-family="monospace">433 MHz</text>
+    <text x="290" y="190" text-anchor="middle" fill="#8b949e" font-size="9" font-family="monospace">AES-128 encrypted</text>
+    <text x="290" y="203" text-anchor="middle" fill="#8b949e" font-size="9" font-family="monospace">rolling code</text>
+
+    <!-- Lock Box -->
+    <rect x="350" y="60" width="260" height="220" rx="14" fill="#1a1a2e" stroke="#00d4aa" stroke-width="2"/>
+    <text x="480" y="90" text-anchor="middle" fill="#00d4aa" font-size="14" font-weight="bold" font-family="monospace">LOCK BOX</text>
+
+    <!-- Internal blocks -->
+    <rect x="370" y="105" width="90" height="35" rx="4" fill="#0d1117" stroke="#b48eff" stroke-width="1"/>
+    <text x="415" y="127" text-anchor="middle" fill="#b48eff" font-size="9" font-family="monospace">SYN480R RX</text>
+
+    <rect x="370" y="150" width="90" height="35" rx="4" fill="#0d1117" stroke="#4a9eff" stroke-width="1"/>
+    <text x="415" y="172" text-anchor="middle" fill="#4a9eff" font-size="9" font-family="monospace">ATmega328P</text>
+
+    <rect x="370" y="195" width="90" height="35" rx="4" fill="#0d1117" stroke="#ff6b6b" stroke-width="1"/>
+    <text x="415" y="217" text-anchor="middle" fill="#ff6b6b" font-size="9" font-family="monospace">60A RELAY</text>
+
+    <rect x="500" y="105" width="90" height="35" rx="4" fill="#0d1117" stroke="#f0c040" stroke-width="1"/>
+    <text x="545" y="127" text-anchor="middle" fill="#f0c040" font-size="9" font-family="monospace">48V→5V REG</text>
+
+    <rect x="500" y="150" width="90" height="35" rx="4" fill="#0d1117" stroke="#00d4aa" stroke-width="1"/>
+    <text x="545" y="167" text-anchor="middle" fill="#00d4aa" font-size="8" font-family="monospace">PAIR BTN</text>
+    <text x="545" y="179" text-anchor="middle" fill="#00d4aa" font-size="8" font-family="monospace">+ LED</text>
+
+    <rect x="500" y="195" width="90" height="35" rx="4" fill="#0d1117" stroke="#8b949e" stroke-width="1"/>
+    <text x="545" y="217" text-anchor="middle" fill="#8b949e" font-size="9" font-family="monospace">EEPROM</text>
+
+    <text x="480" y="255" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">80mm x 60mm x 30mm</text>
+
+    <!-- Power wires -->
+    <line x1="610" y1="140" x2="700" y2="100" stroke="#ff6b6b" stroke-width="3"/>
+    <line x1="610" y1="200" x2="700" y2="240" stroke="#44ff44" stroke-width="3"/>
+
+    <!-- Battery -->
+    <rect x="700" y="60" width="170" height="70" rx="10" fill="#1a1a2e" stroke="#ff6b6b" stroke-width="1.5"/>
+    <text x="785" y="85" text-anchor="middle" fill="#ff6b6b" font-size="11" font-family="monospace">BATTERY</text>
+    <text x="785" y="102" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">48V - 72V</text>
+    <text x="785" y="118" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">e-moto main pack</text>
+
+    <!-- Motor Controller -->
+    <rect x="700" y="210" width="170" height="70" rx="10" fill="#1a1a2e" stroke="#44ff44" stroke-width="1.5"/>
+    <text x="785" y="235" text-anchor="middle" fill="#44ff44" font-size="11" font-family="monospace">CONTROLLER</text>
+    <text x="785" y="252" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">motor ESC</text>
+    <text x="785" y="268" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">throttle / display</text>
+
+    <!-- Labels on wires -->
+    <text x="655" y="90" text-anchor="middle" fill="#ff6b6b" font-size="9" font-family="monospace">BAT +</text>
+    <text x="655" y="250" text-anchor="middle" fill="#44ff44" font-size="9" font-family="monospace">CTRL +</text>
+
+    <!-- Ground wire (bypass) -->
+    <line x1="700" y1="130" x2="680" y2="130" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <line x1="680" y1="130" x2="680" y2="280" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <line x1="680" y1="280" x2="700" y2="280" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <text x="665" y="205" text-anchor="middle" fill="#8b949e" font-size="8" font-family="monospace" transform="rotate(-90,665,205)">GND (pass-through)</text>
+</svg>
+</div>
+
+<div class="decision">
+    <strong>Key Design Decision:</strong>
+    <p>One-way RF (fob transmits, box receives). This is half the cost of two-way communication and the fob battery lasts 3x longer. The tradeoff: no confirmation beep from the bike. The LED on the lock box blinks instead. For $89, this is the right call.</p>
+</div>
+
+<!-- ============================================ -->
+<h2><span class="num">2</span> Lock Box Architecture</h2>
+
+<div class="diagram-box">
+<svg viewBox="0 0 800 500">
+    <!-- Enclosure outline -->
+    <rect x="40" y="30" width="720" height="440" rx="16" fill="none" stroke="#30363d" stroke-width="1" stroke-dasharray="6,3"/>
+    <text x="60" y="22" fill="#666" font-size="10" font-family="monospace">ABS ENCLOSURE (IP65) - 80mm x 60mm x 30mm</text>
+
+    <!-- Power input section -->
+    <text x="60" y="65" fill="#ff6b6b" font-size="12" font-weight="bold" font-family="monospace">POWER PATH</text>
+
+    <!-- Screw terminal IN -->
+    <rect x="60" y="80" width="120" height="50" rx="6" fill="#1a1a2e" stroke="#ff6b6b" stroke-width="1.5"/>
+    <text x="120" y="100" text-anchor="middle" fill="#ff6b6b" font-size="10" font-family="monospace">SCREW TERM</text>
+    <text x="120" y="115" text-anchor="middle" fill="#ff6b6b" font-size="10" font-family="monospace">BAT+ IN</text>
+    <text x="120" y="145" text-anchor="middle" fill="#666" font-size="8" font-family="monospace">10AWG wire lead</text>
+
+    <!-- Arrow -->
+    <line x1="180" y1="105" x2="230" y2="105" stroke="#ff6b6b" stroke-width="2" marker-end="url(#arr)"/>
+
+    <!-- Relay -->
+    <rect x="230" y="75" width="160" height="60" rx="6" fill="#1a1a2e" stroke="#ff6b6b" stroke-width="2"/>
+    <text x="310" y="98" text-anchor="middle" fill="#ff6b6b" font-size="11" font-weight="bold" font-family="monospace">JQX-62F RELAY</text>
+    <text x="310" y="115" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">80A SPST-NO | 12V coil</text>
+    <text x="310" y="128" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">Normally OPEN = locked</text>
+
+    <!-- Arrow -->
+    <line x1="390" y1="105" x2="440" y2="105" stroke="#44ff44" stroke-width="2" marker-end="url(#arrG)"/>
+
+    <!-- Screw terminal OUT -->
+    <rect x="440" y="80" width="120" height="50" rx="6" fill="#1a1a2e" stroke="#44ff44" stroke-width="1.5"/>
+    <text x="500" y="100" text-anchor="middle" fill="#44ff44" font-size="10" font-family="monospace">SCREW TERM</text>
+    <text x="500" y="115" text-anchor="middle" fill="#44ff44" font-size="10" font-family="monospace">CTRL+ OUT</text>
+    <text x="500" y="145" text-anchor="middle" fill="#666" font-size="8" font-family="monospace">10AWG wire lead</text>
+
+    <!-- Power state box -->
+    <rect x="590" y="75" width="150" height="60" rx="6" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+    <text x="665" y="95" text-anchor="middle" fill="#ff6b6b" font-size="9" font-family="monospace">NO KEY = relay OPEN</text>
+    <text x="665" y="108" text-anchor="middle" fill="#ff6b6b" font-size="9" font-family="monospace">= NO POWER = locked</text>
+    <text x="665" y="125" text-anchor="middle" fill="#44ff44" font-size="9" font-family="monospace">KEY OK = relay CLOSED</text>
+    <text x="665" y="138" text-anchor="middle" fill="#44ff44" font-size="9" font-family="monospace">= POWER = unlocked</text>
+
+    <!-- Logic section -->
+    <text x="60" y="190" fill="#4a9eff" font-size="12" font-weight="bold" font-family="monospace">LOGIC</text>
+
+    <!-- Voltage regulator -->
+    <rect x="60" y="205" width="130" height="70" rx="6" fill="#1a1a2e" stroke="#f0c040" stroke-width="1.5"/>
+    <text x="125" y="225" text-anchor="middle" fill="#f0c040" font-size="10" font-weight="bold" font-family="monospace">VOLTAGE REG</text>
+    <text x="125" y="242" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">LM2596 buck</text>
+    <text x="125" y="255" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">48-72V → 5V</text>
+    <text x="125" y="268" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">500mA max</text>
+
+    <!-- Arrow to MCU -->
+    <line x1="190" y1="240" x2="230" y2="240" stroke="#f0c040" stroke-width="1.5" marker-end="url(#arrY)"/>
+    <text x="210" y="233" text-anchor="middle" fill="#f0c040" font-size="8" font-family="monospace">5V</text>
+
+    <!-- MCU -->
+    <rect x="230" y="200" width="200" height="80" rx="6" fill="#1a1a2e" stroke="#4a9eff" stroke-width="2"/>
+    <text x="330" y="222" text-anchor="middle" fill="#4a9eff" font-size="11" font-weight="bold" font-family="monospace">ATmega328P</text>
+    <text x="330" y="240" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">8-bit AVR @ 16MHz</text>
+    <text x="330" y="255" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">32KB flash / 2KB SRAM</text>
+    <text x="330" y="270" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">AES-128 in software (~2ms)</text>
+
+    <!-- MCU to relay driver -->
+    <line x1="310" y1="200" x2="310" y2="155" stroke="#4a9eff" stroke-width="1.5" marker-end="url(#arrB)"/>
+    <text x="290" y="180" fill="#4a9eff" font-size="8" font-family="monospace">GPIO</text>
+
+    <!-- Relay driver -->
+    <rect x="265" y="148" width="90" height="20" rx="3" fill="#0d1117" stroke="#8b949e" stroke-width="1"/>
+    <text x="310" y="162" text-anchor="middle" fill="#8b949e" font-size="8" font-family="monospace">2N2222 + diode</text>
+
+    <!-- RF module -->
+    <rect x="470" y="200" width="140" height="80" rx="6" fill="#1a1a2e" stroke="#b48eff" stroke-width="1.5"/>
+    <text x="540" y="222" text-anchor="middle" fill="#b48eff" font-size="10" font-weight="bold" font-family="monospace">SYN480R</text>
+    <text x="540" y="238" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">433MHz ASK receiver</text>
+    <text x="540" y="253" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">superheterodyne</text>
+    <text x="540" y="268" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">-108dBm sensitivity</text>
+
+    <!-- Arrow RF to MCU -->
+    <line x1="470" y1="240" x2="430" y2="240" stroke="#b48eff" stroke-width="1.5" marker-end="url(#arrP)"/>
+    <text x="450" y="233" text-anchor="middle" fill="#b48eff" font-size="8" font-family="monospace">DATA</text>
+
+    <!-- Antenna -->
+    <line x1="540" y1="200" x2="540" y2="170" stroke="#b48eff" stroke-width="1.5"/>
+    <line x1="525" y1="170" x2="555" y2="170" stroke="#b48eff" stroke-width="1.5"/>
+    <line x1="530" y1="165" x2="550" y2="165" stroke="#b48eff" stroke-width="1"/>
+    <text x="540" y="158" text-anchor="middle" fill="#b48eff" font-size="8" font-family="monospace">17cm wire antenna</text>
+
+    <!-- EEPROM -->
+    <rect x="650" y="210" width="100" height="60" rx="6" fill="#1a1a2e" stroke="#8b949e" stroke-width="1"/>
+    <text x="700" y="232" text-anchor="middle" fill="#8b949e" font-size="10" font-family="monospace">AT24C256</text>
+    <text x="700" y="248" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">EEPROM</text>
+    <text x="700" y="262" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">stores keys</text>
+
+    <!-- Arrow MCU to EEPROM -->
+    <line x1="430" y1="250" x2="450" y2="250" stroke="#8b949e" stroke-width="0"/>
+    <line x1="650" y1="240" x2="615" y2="240" stroke="#8b949e" stroke-width="1" stroke-dasharray="4,2"/>
+    <text x="633" y="233" text-anchor="middle" fill="#8b949e" font-size="7" font-family="monospace">I2C</text>
+
+    <!-- UI section -->
+    <text x="60" y="320" fill="#00d4aa" font-size="12" font-weight="bold" font-family="monospace">USER INTERFACE</text>
+
+    <!-- Pair button -->
+    <rect x="60" y="335" width="120" height="50" rx="6" fill="#1a1a2e" stroke="#00d4aa" stroke-width="1.5"/>
+    <text x="120" y="355" text-anchor="middle" fill="#00d4aa" font-size="10" font-family="monospace">PAIR BUTTON</text>
+    <text x="120" y="370" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">recessed tactile</text>
+
+    <!-- LED -->
+    <rect x="220" y="335" width="120" height="50" rx="6" fill="#1a1a2e" stroke="#00d4aa" stroke-width="1.5"/>
+    <text x="280" y="355" text-anchor="middle" fill="#00d4aa" font-size="10" font-family="monospace">STATUS LED</text>
+    <text x="280" y="370" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">green / red bicolor</text>
+
+    <!-- State descriptions -->
+    <rect x="380" y="325" width="360" height="70" rx="6" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+    <text x="400" y="345" fill="#00d4aa" font-size="9" font-family="monospace">LED STATES:</text>
+    <text x="400" y="360" fill="#44ff44" font-size="9" font-family="monospace">&#x25CF; Green steady   = unlocked, key nearby</text>
+    <text x="400" y="373" fill="#ff6b6b" font-size="9" font-family="monospace">&#x25CF; Red slow blink = locked, no key</text>
+    <text x="400" y="386" fill="#f0c040" font-size="9" font-family="monospace">&#x25CF; Green fast     = pairing mode</text>
+
+    <!-- Potting note -->
+    <text x="60" y="430" fill="#8b949e" font-size="10" font-family="monospace">ASSEMBLY: PCB screwed to enclosure base. Relay bolted. Screw terminals exit through</text>
+    <text x="60" y="445" fill="#8b949e" font-size="10" font-family="monospace">cable glands. LED + button in lid. Entire interior filled with urethane potting compound.</text>
+    <text x="60" y="460" fill="#f0c040" font-size="10" font-family="monospace">Potting makes it tamper-proof: cutting the box open destroys all circuits.</text>
+
+    <!-- Arrow markers -->
+    <defs>
+        <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#ff6b6b"/></marker>
+        <marker id="arrG" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#44ff44"/></marker>
+        <marker id="arrY" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#f0c040"/></marker>
+        <marker id="arrB" markerWidth="6" markerHeight="6" refX="3" refY="5" orient="auto"><path d="M0,0 L3,6 L6,0 Z" fill="#4a9eff"/></marker>
+        <marker id="arrP" markerWidth="6" markerHeight="6" refX="1" refY="3" orient="auto"><path d="M6,0 L0,3 L6,6 Z" fill="#b48eff"/></marker>
+    </defs>
+</svg>
+</div>
+
+<!-- ============================================ -->
+<h2><span class="num">3</span> Key Fob Architecture</h2>
+
+<div class="diagram-box">
+<svg viewBox="0 0 700 280">
+    <!-- Fob outline -->
+    <rect x="40" y="30" width="620" height="220" rx="20" fill="none" stroke="#f0c040" stroke-width="2" stroke-dasharray="6,3"/>
+    <text x="60" y="22" fill="#666" font-size="10" font-family="monospace">KEY FOB ENCLOSURE - 48mm x 30mm x 10mm - ABS with keyring hole</text>
+
+    <!-- Battery -->
+    <rect x="70" y="65" width="120" height="75" rx="8" fill="#1a1a2e" stroke="#f0c040" stroke-width="1.5"/>
+    <text x="130" y="88" text-anchor="middle" fill="#f0c040" font-size="11" font-weight="bold" font-family="monospace">CR2032</text>
+    <text x="130" y="105" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">3V lithium coin</text>
+    <text x="130" y="120" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">225mAh</text>
+    <text x="130" y="133" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">~1-2 year life</text>
+
+    <!-- Arrow -->
+    <line x1="190" y1="102" x2="230" y2="102" stroke="#f0c040" stroke-width="1.5" marker-end="url(#arrY)"/>
+    <text x="210" y="95" text-anchor="middle" fill="#f0c040" font-size="8" font-family="monospace">3V</text>
+
+    <!-- MCU -->
+    <rect x="230" y="55" width="170" height="95" rx="8" fill="#1a1a2e" stroke="#4a9eff" stroke-width="2"/>
+    <text x="315" y="78" text-anchor="middle" fill="#4a9eff" font-size="11" font-weight="bold" font-family="monospace">ATtiny85</text>
+    <text x="315" y="96" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">8-bit AVR @ 8MHz</text>
+    <text x="315" y="111" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">8KB flash / 512B SRAM</text>
+    <text x="315" y="126" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">AES-128 in software</text>
+    <text x="315" y="141" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">sleep: 1.8μA</text>
+
+    <!-- Arrow to TX -->
+    <line x1="400" y1="102" x2="440" y2="102" stroke="#b48eff" stroke-width="1.5" marker-end="url(#arrP2)"/>
+    <text x="420" y="95" text-anchor="middle" fill="#b48eff" font-size="8" font-family="monospace">DATA</text>
+
+    <!-- TX Module -->
+    <rect x="440" y="55" width="130" height="95" rx="8" fill="#1a1a2e" stroke="#b48eff" stroke-width="1.5"/>
+    <text x="505" y="78" text-anchor="middle" fill="#b48eff" font-size="11" font-weight="bold" font-family="monospace">SYN115</text>
+    <text x="505" y="96" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">433MHz ASK TX</text>
+    <text x="505" y="111" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">10mW output</text>
+    <text x="505" y="126" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">30m range</text>
+    <text x="505" y="141" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">12mA TX current</text>
+
+    <!-- Antenna -->
+    <line x1="570" y1="102" x2="620" y2="75" stroke="#b48eff" stroke-width="1.5"/>
+    <line x1="620" y1="75" x2="630" y2="65" stroke="#b48eff" stroke-width="1.5"/>
+    <text x="620" y="55" text-anchor="middle" fill="#b48eff" font-size="8" font-family="monospace">PCB trace antenna</text>
+
+    <!-- Button -->
+    <rect x="290" y="170" width="100" height="45" rx="8" fill="#1a1a2e" stroke="#00d4aa" stroke-width="1.5"/>
+    <text x="340" y="190" text-anchor="middle" fill="#00d4aa" font-size="10" font-family="monospace">BUTTON</text>
+    <text x="340" y="205" text-anchor="middle" fill="#666" font-size="9" font-family="monospace">tactile switch</text>
+
+    <!-- Arrow button to MCU -->
+    <line x1="315" y1="170" x2="315" y2="150" stroke="#00d4aa" stroke-width="1" marker-end="url(#arrG2)"/>
+    <text x="303" y="163" fill="#00d4aa" font-size="7" font-family="monospace">IRQ</text>
+
+    <!-- How it works -->
+    <rect x="70" y="170" width="200" height="60" rx="6" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+    <text x="170" y="188" text-anchor="middle" fill="#f0c040" font-size="9" font-family="monospace">BUTTON PRESS:</text>
+    <text x="170" y="202" text-anchor="middle" fill="#8b949e" font-size="9" font-family="monospace">1. Wake from sleep</text>
+    <text x="170" y="215" text-anchor="middle" fill="#8b949e" font-size="9" font-family="monospace">2. Encrypt(counter + ID)</text>
+    <text x="170" y="228" text-anchor="middle" fill="#8b949e" font-size="9" font-family="monospace">3. Transmit → sleep</text>
+
+    <!-- Battery life calc -->
+    <rect x="420" y="170" width="220" height="60" rx="6" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+    <text x="530" y="188" text-anchor="middle" fill="#f0c040" font-size="9" font-family="monospace">BATTERY LIFE CALC:</text>
+    <text x="530" y="202" text-anchor="middle" fill="#8b949e" font-size="9" font-family="monospace">Sleep: 1.8μA × 99.99% of time</text>
+    <text x="530" y="215" text-anchor="middle" fill="#8b949e" font-size="9" font-family="monospace">TX: 12mA × 50ms × 10 presses/day</text>
+    <text x="530" y="228" text-anchor="middle" fill="#00d4aa" font-size="9" font-family="monospace">= ~18 months on one CR2032</text>
+
+    <defs>
+        <marker id="arrP2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#b48eff"/></marker>
+        <marker id="arrG2" markerWidth="6" markerHeight="6" refX="3" refY="1" orient="auto"><path d="M0,6 L3,0 L6,6 Z" fill="#00d4aa"/></marker>
+    </defs>
+</svg>
+</div>
+
+<!-- ============================================ -->
+<h2><span class="num">4</span> Security Protocol</h2>
+
+<p>This is what prevents someone from cloning the fob or replaying a captured signal.</p>
+
+<h3>Pairing (one-time setup)</h3>
+<pre>
+  FOB                                    LOCK BOX
+   │                                        │
+   │  1. User presses PAIR button on box    │
+   │         LED blinks fast (green)        │
+   │                                        │
+   │  2. User presses FOB button            │
+   │  ──── plaintext: "PAIR_REQUEST" ─────► │
+   │                                        │
+   │  3. Box generates random 128-bit key   │
+   │     Box stores: KEY + FOB_ID           │
+   │     Box shows LED pattern:             │
+   │     (4 blinks = key byte checksum)     │
+   │                                        │
+   │  4. Box transmits key via IR/NFC       │
+   │  ◄──── one-time key transfer ────────  │  ← requires physical contact
+   │                                        │
+   │  5. Fob stores KEY in EEPROM           │
+   │     Both set counter = 0               │
+   │                                        │
+   │  DONE. Shared secret established.      │
+   └────────────────────────────────────────┘
+
+   NOTE: Key transfer via NFC/physical contact means an attacker
+   cannot intercept the pairing from a distance. You must be
+   holding the fob against the box.
+</pre>
+
+<h3>Unlock (every use)</h3>
+<pre>
+  FOB                                    LOCK BOX
+   │                                        │
+   │  1. User presses button                │
+   │     Fob increments counter             │
+   │     Fob computes:                      │
+   │       payload = counter | FOB_ID       │
+   │       encrypted = AES-128(KEY, payload)│
+   │                                        │
+   │  ──── 433MHz: encrypted packet ──────► │
+   │       (16 bytes, ~3ms air time)        │
+   │                                        │
+   │  2. Box decrypts with stored KEY       │
+   │     Checks FOB_ID matches              │
+   │     Checks counter > last_counter      │
+   │     If valid:                          │
+   │       - Update last_counter            │
+   │       - Close relay (power ON)         │
+   │       - Start 30-second timeout        │
+   │       - LED solid green                │
+   │                                        │
+   │  3. After 30 sec with no new signal:   │
+   │     - Open relay (power OFF)           │
+   │     - LED blink red                    │
+   │                                        │
+   └────────────────────────────────────────┘
+</pre>
+
+<h3>Why this is hard to hack</h3>
+
+<div class="cols">
+    <div class="card">
+        <h4>Replay Attack</h4>
+        <p>Attacker records a valid transmission and replays it. <strong>Fails</strong> because the counter has already advanced. The lock box rejects any counter ≤ last seen.</p>
+    </div>
+    <div class="card">
+        <h4>Brute Force</h4>
+        <p>AES-128 has 2<sup>128</sup> possible keys = 3.4 × 10<sup>38</sup>. At 1 billion attempts/second, it would take <strong>10<sup>22</sup> years</strong>. The universe is 1.4 × 10<sup>10</sup> years old.</p>
+    </div>
+    <div class="card">
+        <h4>Signal Analysis</h4>
+        <p>Every transmission looks like random noise. No pattern emerges even with millions of captured packets. AES is the same encryption used by the US government for classified data.</p>
+    </div>
+    <div class="card">
+        <h4>Physical Bypass</h4>
+        <p>Relay is normally-open. Cutting wires = no power. Cracking the potted enclosure destroys the PCB. The only bypass is splicing around the entire box, which requires stripping the bike apart.</p>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<h2><span class="num">5</span> Bill of Materials & Cost</h2>
+
+<h3>Lock Box BOM</h3>
+<table>
+    <thead>
+        <tr><th>Component</th><th>Part</th><th>Qty</th><th>Unit Cost</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>MCU</td><td>ATmega328P-AU (TQFP)</td><td>1</td><td class="cost">$1.40</td><td>Same chip as Arduino. Massive ecosystem, easy to program.</td></tr>
+        <tr><td>RF Receiver</td><td>SYN480R 433MHz</td><td>1</td><td class="cost">$0.50</td><td>Superheterodyne ASK receiver. Better range than SRX882.</td></tr>
+        <tr><td>Relay</td><td>JQX-62F 80A SPST-NO</td><td>1</td><td class="cost">$2.80</td><td>Automotive-grade. 12V coil. Handles 48-72V DC switching.</td></tr>
+        <tr><td>Relay Driver</td><td>2N2222A + 1N4007 flyback</td><td>1</td><td class="cost">$0.10</td><td>NPN transistor drives relay coil from MCU GPIO.</td></tr>
+        <tr><td>Voltage Regulator</td><td>LM2596 buck module</td><td>1</td><td class="cost">$0.80</td><td>48-72V input → 5V output. Pre-built module.</td></tr>
+        <tr><td>EEPROM</td><td>AT24C256 (I2C)</td><td>1</td><td class="cost">$0.25</td><td>Stores up to 8 paired key records. Non-volatile.</td></tr>
+        <tr><td>Crystal</td><td>16MHz + 22pF caps</td><td>1</td><td class="cost">$0.15</td><td>MCU clock source.</td></tr>
+        <tr><td>LED</td><td>Bicolor red/green 3mm</td><td>1</td><td class="cost">$0.08</td><td>Status indicator. Two resistors.</td></tr>
+        <tr><td>Button</td><td>Tactile switch (recessed)</td><td>1</td><td class="cost">$0.10</td><td>Pairing button. Recessed to prevent accidental press.</td></tr>
+        <tr><td>Screw Terminals</td><td>5mm pitch, 2-pos</td><td>2</td><td class="cost">$0.30</td><td>Battery in + controller out. Accepts 10AWG.</td></tr>
+        <tr><td>Wire Leads</td><td>10AWG silicone, 15cm ea</td><td>2</td><td class="cost">$0.60</td><td>Pre-tinned, red + green.</td></tr>
+        <tr><td>Antenna</td><td>17cm wire (1/4 wave)</td><td>1</td><td class="cost">$0.02</td><td>Just a piece of wire. Cut to 17.3cm for 433MHz.</td></tr>
+        <tr><td>PCB</td><td>Custom 2-layer, 50x40mm</td><td>1</td><td class="cost">$0.80</td><td>JLCPCB @ 100 qty. FR4, 1.6mm, HASL.</td></tr>
+        <tr><td>Enclosure</td><td>ABS IP65 box, 80x60x30mm</td><td>1</td><td class="cost">$1.80</td><td>Off-shelf waterproof junction box. Black.</td></tr>
+        <tr><td>Cable Glands</td><td>PG7 nylon</td><td>2</td><td class="cost">$0.20</td><td>Waterproof wire pass-through.</td></tr>
+        <tr><td>Potting Compound</td><td>Urethane 2-part</td><td>~30ml</td><td class="cost">$0.50</td><td>Fills enclosure. Tamper-proof + weather seal.</td></tr>
+        <tr><td>Misc</td><td>Caps, resistors, header, solder</td><td>-</td><td class="cost">$0.40</td><td>Decoupling caps, pull-ups, ISP header.</td></tr>
+        <tr class="highlight-row"><td colspan="3"><strong>Lock Box Subtotal</strong></td><td class="subtotal">$10.80</td><td></td></tr>
+    </tbody>
+</table>
+
+<h3>Key Fob BOM (x1)</h3>
+<table>
+    <thead>
+        <tr><th>Component</th><th>Part</th><th>Qty</th><th>Unit Cost</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>MCU</td><td>ATtiny85-20SU (SOIC)</td><td>1</td><td class="cost">$0.65</td><td>8-pin, 8KB flash. Runs AES in software. 1.8μA sleep.</td></tr>
+        <tr><td>RF Transmitter</td><td>SYN115 433MHz</td><td>1</td><td class="cost">$0.35</td><td>ASK transmitter. 10mW. Tiny SOT-23 package.</td></tr>
+        <tr><td>Battery Holder</td><td>CR2032 SMD holder</td><td>1</td><td class="cost">$0.12</td><td>Bottom-mount for thin profile.</td></tr>
+        <tr><td>Battery</td><td>CR2032 lithium</td><td>1</td><td class="cost">$0.20</td><td>Included. 225mAh, ~18 month life.</td></tr>
+        <tr><td>Button</td><td>Tactile SMD 4x4mm</td><td>1</td><td class="cost">$0.05</td><td>Main unlock button. Wake from sleep.</td></tr>
+        <tr><td>Antenna</td><td>PCB trace</td><td>1</td><td class="cost">$0.00</td><td>Etched into PCB. No extra cost.</td></tr>
+        <tr><td>PCB</td><td>Custom 2-layer, 35x20mm</td><td>1</td><td class="cost">$0.40</td><td>JLCPCB @ 100 qty. Small board.</td></tr>
+        <tr><td>Enclosure</td><td>ABS key fob case + keyring</td><td>1</td><td class="cost">$0.45</td><td>Off-shelf injection molded fob case. Black.</td></tr>
+        <tr><td>Misc</td><td>Caps, resistors</td><td>-</td><td class="cost">$0.15</td><td>Decoupling, pull-up.</td></tr>
+        <tr class="highlight-row"><td colspan="3"><strong>Key Fob Subtotal (x1)</strong></td><td class="subtotal">$2.37</td><td></td></tr>
+    </tbody>
+</table>
+
+<h3>Mounting Kit BOM</h3>
+<table>
+    <thead>
+        <tr><th>Component</th><th>Part</th><th>Qty</th><th>Unit Cost</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Mounting Bracket</td><td>Stainless L-bracket</td><td>1</td><td class="cost">$0.40</td><td>Screw-mount to frame.</td></tr>
+        <tr><td>Zip Ties</td><td>UV-resistant nylon, 200mm</td><td>6</td><td class="cost">$0.15</td><td>Backup / alternative mounting.</td></tr>
+        <tr><td>Adhesive Pad</td><td>3M VHB double-sided</td><td>1</td><td class="cost">$0.30</td><td>For flat-surface mounting.</td></tr>
+        <tr><td>Heat Shrink</td><td>Assorted, adhesive-lined</td><td>4pc</td><td class="cost">$0.20</td><td>Weatherproof wire splices.</td></tr>
+        <tr><td>Ring Terminals</td><td>10AWG, M6</td><td>4</td><td class="cost">$0.40</td><td>Optional: bolt directly to battery terminals.</td></tr>
+        <tr><td>Instruction Card</td><td>Printed card, double-sided</td><td>1</td><td class="cost">$0.15</td><td>Install guide + QR to video.</td></tr>
+        <tr class="highlight-row"><td colspan="3"><strong>Mounting Kit Subtotal</strong></td><td class="subtotal">$1.60</td><td></td></tr>
+    </tbody>
+</table>
+
+<h3>Packaging</h3>
+<table>
+    <thead>
+        <tr><th>Component</th><th>Part</th><th>Qty</th><th>Unit Cost</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Box</td><td>Custom printed corrugated</td><td>1</td><td class="cost">$0.80</td><td>Branded box, 150x120x60mm</td></tr>
+        <tr><td>Insert</td><td>Die-cut foam insert</td><td>1</td><td class="cost">$0.40</td><td>Holds lock box + 2 fobs + kit</td></tr>
+        <tr class="highlight-row"><td colspan="3"><strong>Packaging Subtotal</strong></td><td class="subtotal">$1.20</td><td></td></tr>
+    </tbody>
+</table>
+
+<!-- ============================================ -->
+<h2><span class="num">6</span> Cost Rollup & Margin Analysis</h2>
+
+<h3>MotoKey Basic — Retail $89</h3>
+<table>
+    <thead>
+        <tr><th>Line Item</th><th>Cost</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Lock Box (assembled)</td><td class="cost">$10.80</td></tr>
+        <tr><td>Key Fob x 2</td><td class="cost">$4.74</td></tr>
+        <tr><td>Mounting Kit</td><td class="cost">$1.60</td></tr>
+        <tr><td>Packaging</td><td class="cost">$1.20</td></tr>
+        <tr><td>Assembly labor (15 min @ $15/hr)</td><td class="cost">$3.75</td></tr>
+        <tr><td>Testing & QC (5 min)</td><td class="cost">$1.25</td></tr>
+        <tr class="total-row"><td><strong>Total COGS</strong></td><td class="cost"><strong>$23.34</strong></td></tr>
+        <tr><td>Retail Price</td><td>$89.00</td></tr>
+        <tr class="margin-row"><td><strong>Gross Margin</strong></td><td class="margin-good"><strong>$65.66 (73.8%)</strong></td></tr>
+    </tbody>
+</table>
+
+<h3>MotoKey Enhanced — Retail $149</h3>
+<table>
+    <thead>
+        <tr><th>Line Item</th><th>Cost</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Lock Box (upgraded: dual relay, STM32L4, vibration sensor)</td><td class="cost">$16.50</td></tr>
+        <tr><td>Key Fob x 2 (USB-C rechargeable, LED) + 1 backup fob (basic)</td><td class="cost">$11.20</td></tr>
+        <tr><td>Mounting Kit</td><td class="cost">$1.60</td></tr>
+        <tr><td>Packaging (premium)</td><td class="cost">$1.80</td></tr>
+        <tr><td>Assembly labor (25 min @ $15/hr)</td><td class="cost">$6.25</td></tr>
+        <tr><td>Testing & QC (8 min)</td><td class="cost">$2.00</td></tr>
+        <tr class="total-row"><td><strong>Total COGS</strong></td><td class="cost"><strong>$39.35</strong></td></tr>
+        <tr><td>Retail Price</td><td>$149.00</td></tr>
+        <tr class="margin-row"><td><strong>Gross Margin</strong></td><td class="margin-good"><strong>$109.65 (73.6%)</strong></td></tr>
+    </tbody>
+</table>
+
+<div class="proto-note">
+    <strong>Prototype pricing note:</strong>
+    <p>BOM costs above assume ordering 100 units from LCSC/JLCPCB. For a <strong>single prototype</strong>, expect 2-3x these prices (~$50-60 for one complete Basic kit from Mouser/DigiKey). But the per-unit math works beautifully at even small scale. At 100 units you're already at 73% margin.</p>
+</div>
+
+<!-- ============================================ -->
+<h2><span class="num">7</span> First Prototype — What to Buy</h2>
+
+<p>To build one working prototype on your desk for under $40:</p>
+
+<h3>Shopping List (DigiKey/Amazon/AliExpress)</h3>
+<table>
+    <thead>
+        <tr><th>Item</th><th>Source</th><th>~Price</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Arduino Nano (ATmega328P dev board)</td><td>Amazon</td><td class="cost">$5</td></tr>
+        <tr><td>433MHz TX/RX module pair (SYN115 + SYN480R)</td><td>Amazon/AliExpress</td><td class="cost">$3</td></tr>
+        <tr><td>5V 80A relay module (automotive)</td><td>Amazon</td><td class="cost">$6</td></tr>
+        <tr><td>ATtiny85 dev board (Digispark)</td><td>Amazon</td><td class="cost">$4</td></tr>
+        <tr><td>LM2596 buck converter module</td><td>Amazon</td><td class="cost">$2</td></tr>
+        <tr><td>Breadboard + jumper wires</td><td>Amazon</td><td class="cost">$5</td></tr>
+        <tr><td>CR2032 battery + holder</td><td>Amazon</td><td class="cost">$2</td></tr>
+        <tr><td>Push buttons (assorted)</td><td>Amazon</td><td class="cost">$2</td></tr>
+        <tr><td>LED + resistors</td><td>Amazon</td><td class="cost">$1</td></tr>
+        <tr><td>ABS project box</td><td>Amazon</td><td class="cost">$3</td></tr>
+        <tr><td>Key fob cases (2-pack)</td><td>AliExpress</td><td class="cost">$2</td></tr>
+        <tr class="total-row"><td><strong>Prototype Total</strong></td><td></td><td class="cost"><strong>~$35</strong></td></tr>
+    </tbody>
+</table>
+
+<div class="decision">
+    <strong>Dev tools you'll also need (one-time):</strong>
+    <p>USB-ASP programmer for the ATtiny85 (~$8). The Arduino Nano programs via USB directly. Soldering iron if you don't have one. Total one-time tool cost: ~$20-30.</p>
+</div>
+
+<h3>Prototype Build Order</h3>
+<pre>
+  PHASE 1: Proof of Concept (Weekend 1)
+  ──────────────────────────────────────
+  ✦ Wire Arduino Nano + relay on breadboard
+  ✦ Wire ATtiny85 + 433MHz TX on breadboard
+  ✦ Write simple TX/RX code (no encryption yet)
+  ✦ Press button on fob → relay clicks → LED turns on
+  ✦ SUCCESS = "it works" demo
+
+  PHASE 2: Security Layer (Weekend 2)
+  ──────────────────────────────────────
+  ✦ Add AES-128 library to both MCUs
+  ✦ Hardcode a shared key for testing
+  ✦ Implement rolling counter
+  ✦ Verify: replaying a captured signal fails
+  ✦ SUCCESS = "it's secure" demo
+
+  PHASE 3: Pairing + Polish (Weekend 3)
+  ──────────────────────────────────────
+  ✦ Add pair button logic
+  ✦ Implement key exchange (wired for prototype, NFC for production)
+  ✦ Add LED status states
+  ✦ Add 30-second auto-lock timeout
+  ✦ Add EEPROM storage for paired keys
+  ✦ SUCCESS = complete working unit
+
+  PHASE 4: Enclosure + Test (Weekend 4)
+  ──────────────────────────────────────
+  ✦ Solder onto perfboard (ditch breadboard)
+  ✦ Mount in ABS enclosure
+  ✦ Fit fob PCB in key fob case
+  ✦ Test with actual e-moto battery (48V bench supply or real bike)
+  ✦ Range test (should get 20-30m through walls)
+  ✦ SUCCESS = "ship it" prototype
+</pre>
+
+<!-- ============================================ -->
+<h2><span class="num">8</span> Physical Layout</h2>
+
+<div class="cols">
+    <div>
+        <h3>Lock Box (top view, lid off)</h3>
+        <div class="diagram-box">
+<pre style="font-size: 11px; line-height: 1.4;">
+┌──────────────────────────────────────────┐
+│  ○ PAIR            ○ LED                 │  ← lid (buttons/LED)
+│  btn               R/G                   │
+├──────────────────────────────────────────┤
+│                                          │
+│  ┌─────────────┐  ┌───────────────────┐  │
+│  │  LM2596     │  │   ATmega328P      │  │
+│  │  buck       │  │   + crystal       │  │
+│  │  48V→5V     │  │   + EEPROM        │  │
+│  └─────────────┘  │   + SYN480R RX    │  │
+│                    │                   │  │
+│                    │         ┌antenna  │  │
+│                    └────────┘         ─┤  │
+│                                          │
+│  ┌──────────────────────────────────┐    │
+│  │                                  │    │
+│  │      JQX-62F  80A  RELAY        │    │
+│  │                                  │    │
+│  └──────────────────────────────────┘    │
+│                                          │
+│  [RED IN]                    [GREEN OUT]  │  ← screw terminals
+│    ║                              ║      │    through cable glands
+└════╩══════════════════════════════╩══════┘
+     ↑                              ↑
+   BAT+                          CTRL+
+   10AWG                         10AWG</pre>
+        </div>
+    </div>
+    <div>
+        <h3>Key Fob (internal view)</h3>
+        <div class="diagram-box">
+<pre style="font-size: 11px; line-height: 1.4;">
+    ○ ← keyring hole
+┌──────────────────────┐
+│                      │
+│  ┌────────────────┐  │
+│  │    ATtiny85    │  │
+│  │                │  │
+│  │  ┌──────────┐  │  │
+│  │  │ SYN115   │  │  │
+│  │  │ TX       │  │  │
+│  │  └──────────┘  │  │
+│  │                │  │
+│  │  ~~~antenna~~  │  │  ← PCB trace
+│  └────────────────┘  │
+│                      │
+│  ┌────────────────┐  │
+│  │   CR2032       │  │  ← coin cell
+│  │   battery      │  │    (bottom mount)
+│  └────────────────┘  │
+│                      │
+│       [ BTN ]        │  ← main button
+│                      │
+└──────────────────────┘
+   48mm x 30mm x 10mm</pre>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<h2><span class="num">9</span> Scaling Considerations</h2>
+
+<div class="cols-3">
+    <div class="card">
+        <h4>10 units (garage batch)</h4>
+        <p>Hand-solder perfboard. Buy parts from Amazon. COGS ~$30/unit. Margin ~66% at $89.</p>
+    </div>
+    <div class="card">
+        <h4>100 units (first real run)</h4>
+        <p>Custom PCB from JLCPCB ($0.80/ea). Parts from LCSC. COGS ~$23/unit. Margin ~74% at $89.</p>
+    </div>
+    <div class="card">
+        <h4>1000+ units</h4>
+        <p>PCBA assembly (JLCPCB SMT). Custom injection mold enclosure. COGS drops to ~$15/unit. Margin ~83%.</p>
+    </div>
+</div>
+
+<div class="proto-note" style="margin-top: 32px;">
+    <strong>Bottom line:</strong>
+    <p>The Basic kit costs <strong>$23 to build at 100 qty</strong> and sells for <strong>$89</strong>. That's a 73% gross margin. Even selling 10 hand-built units at $30 COGS, you clear $59 per unit. The math works at every scale.</p>
+</div>
+
+</div>
+</body>
+</html>
