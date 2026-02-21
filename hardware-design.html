@@ -174,9 +174,104 @@
 
         .back-link:hover { text-decoration: underline; }
 
+        /* Scrollable wrapper for tables on mobile */
+        .table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+        }
+
+        .table-wrap table {
+            margin: 0;
+            min-width: 500px;
+        }
+
         @media (max-width: 768px) {
+            body {
+                padding: 20px 14px;
+            }
+
+            h1 { font-size: 1.6rem; }
+            h2 { font-size: 1.25rem; margin: 36px 0 16px; }
+            h3 { font-size: 1rem; }
+            .subtitle { font-size: 0.95rem; margin-bottom: 32px; }
+
             .cols, .cols-3 { grid-template-columns: 1fr; }
-            h1 { font-size: 1.8rem; }
+
+            /* SVG diagrams: let them scroll horizontally */
+            .diagram-box {
+                padding: 12px;
+                margin: 12px -14px;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+
+            .diagram-box svg {
+                min-width: 600px;
+                height: auto;
+            }
+
+            /* Tables: horizontal scroll */
+            table {
+                font-size: 0.82rem;
+            }
+
+            th, td {
+                padding: 8px 10px;
+                white-space: nowrap;
+            }
+
+            /* Let notes column wrap */
+            td:last-child, th:last-child {
+                white-space: normal;
+                min-width: 120px;
+            }
+
+            /* Pre blocks: smaller font, scroll */
+            pre {
+                font-size: 0.68rem;
+                padding: 12px;
+                margin: 12px -14px;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+
+            .diagram-box pre {
+                font-size: 0.62rem;
+                line-height: 1.35;
+                margin: 0;
+            }
+
+            /* Cards */
+            .card { padding: 16px; }
+
+            /* Notes and decisions: full width */
+            .proto-note, .decision {
+                padding: 12px 14px;
+                margin: 12px -14px;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 420px) {
+            h1 { font-size: 1.35rem; }
+            h2 { font-size: 1.1rem; }
+
+            .diagram-box svg {
+                min-width: 500px;
+            }
+
+            pre {
+                font-size: 0.6rem;
+            }
+
+            .diagram-box pre {
+                font-size: 0.55rem;
+            }
         }
     </style>
 </head>
@@ -568,6 +663,7 @@
 <h2><span class="num">5</span> Bill of Materials & Cost</h2>
 
 <h3>Lock Box BOM</h3>
+<div class="table-wrap">
 <table>
     <thead>
         <tr><th>Component</th><th>Part</th><th>Qty</th><th>Unit Cost</th><th>Notes</th></tr>
@@ -593,8 +689,10 @@
         <tr class="highlight-row"><td colspan="3"><strong>Lock Box Subtotal</strong></td><td class="subtotal">$10.80</td><td></td></tr>
     </tbody>
 </table>
+</div>
 
 <h3>Key Fob BOM (x1)</h3>
+<div class="table-wrap">
 <table>
     <thead>
         <tr><th>Component</th><th>Part</th><th>Qty</th><th>Unit Cost</th><th>Notes</th></tr>
@@ -612,8 +710,10 @@
         <tr class="highlight-row"><td colspan="3"><strong>Key Fob Subtotal (x1)</strong></td><td class="subtotal">$2.37</td><td></td></tr>
     </tbody>
 </table>
+</div>
 
 <h3>Mounting Kit BOM</h3>
+<div class="table-wrap">
 <table>
     <thead>
         <tr><th>Component</th><th>Part</th><th>Qty</th><th>Unit Cost</th><th>Notes</th></tr>
@@ -628,8 +728,10 @@
         <tr class="highlight-row"><td colspan="3"><strong>Mounting Kit Subtotal</strong></td><td class="subtotal">$1.60</td><td></td></tr>
     </tbody>
 </table>
+</div>
 
 <h3>Packaging</h3>
+<div class="table-wrap">
 <table>
     <thead>
         <tr><th>Component</th><th>Part</th><th>Qty</th><th>Unit Cost</th><th>Notes</th></tr>
@@ -640,11 +742,13 @@
         <tr class="highlight-row"><td colspan="3"><strong>Packaging Subtotal</strong></td><td class="subtotal">$1.20</td><td></td></tr>
     </tbody>
 </table>
+</div>
 
 <!-- ============================================ -->
 <h2><span class="num">6</span> Cost Rollup & Margin Analysis</h2>
 
 <h3>MotoKey Basic — Retail $89</h3>
+<div class="table-wrap">
 <table>
     <thead>
         <tr><th>Line Item</th><th>Cost</th></tr>
@@ -661,8 +765,10 @@
         <tr class="margin-row"><td><strong>Gross Margin</strong></td><td class="margin-good"><strong>$65.66 (73.8%)</strong></td></tr>
     </tbody>
 </table>
+</div>
 
 <h3>MotoKey Enhanced — Retail $149</h3>
+<div class="table-wrap">
 <table>
     <thead>
         <tr><th>Line Item</th><th>Cost</th></tr>
@@ -679,6 +785,7 @@
         <tr class="margin-row"><td><strong>Gross Margin</strong></td><td class="margin-good"><strong>$109.65 (73.6%)</strong></td></tr>
     </tbody>
 </table>
+</div>
 
 <div class="proto-note">
     <strong>Prototype pricing note:</strong>
@@ -691,6 +798,7 @@
 <p>To build one working prototype on your desk for under $40:</p>
 
 <h3>Shopping List (DigiKey/Amazon/AliExpress)</h3>
+<div class="table-wrap">
 <table>
     <thead>
         <tr><th>Item</th><th>Source</th><th>~Price</th></tr>
@@ -710,6 +818,7 @@
         <tr class="total-row"><td><strong>Prototype Total</strong></td><td></td><td class="cost"><strong>~$35</strong></td></tr>
     </tbody>
 </table>
+</div>
 
 <div class="decision">
     <strong>Dev tools you'll also need (one-time):</strong>
