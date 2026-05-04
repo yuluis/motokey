@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MotoKey Lock Box — Enclosure Design v3</title>
+<style>
+  :root { --bg: #1a1a2e; --card: #16213e; --accent: #0f3460; --text: #e0e0e0;
+          --green: #4ecca3; --blue: #3a86ff; --orange: #ff9f1c; --red: #e63946;
+          --purple: #b07cd8; --cyan: #00d2ff; --yellow: #ffd60a; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'SF Mono', 'Fira Code', monospace; background: var(--bg);
+         color: var(--text); padding: 24px; line-height: 1.6; }
+  h1 { color: var(--green); font-size: 1.4em; margin-bottom: 4px; }
+  h2 { color: var(--blue); font-size: 1.1em; margin: 24px 0 12px; border-bottom: 1px solid var(--accent); padding-bottom: 4px; }
+  h3 { color: var(--cyan); font-size: 0.95em; margin: 16px 0 8px; }
+  .subtitle { color: #888; font-size: 0.85em; margin-bottom: 20px; }
+  .grid { display: grid; gap: 20px; margin: 16px 0; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card { background: var(--card); border: 1px solid var(--accent); border-radius: 8px; padding: 16px; }
+  .card h3 { margin-top: 0; }
+  svg { width: 100%; height: auto; display: block; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 0.85em; }
+  th, td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--accent); }
+  th { color: var(--green); font-weight: 600; }
+  .dim { fill: #888; font-size: 9px; font-family: 'SF Mono', monospace; }
+  .dim-line { stroke: #888; stroke-width: 0.3; stroke-dasharray: 2,2; }
+  .label { fill: var(--text); font-size: 8px; font-family: 'SF Mono', monospace; }
+  .label-sm { fill: #aaa; font-size: 6.5px; font-family: 'SF Mono', monospace; }
+  .note { color: #888; font-size: 0.8em; margin-top: 8px; }
+  .highlight { color: var(--green); }
+  .warn { color: var(--orange); }
+  ul { margin: 8px 0 8px 20px; font-size: 0.85em; }
+  li { margin: 3px 0; }
+</style>
+</head>
+<body>
+
+<h1>MotoKey Lock Box — Enclosure Design v3</h1>
+<p class="subtitle">3D-printed castellated finger joint enclosure | 140x75x38mm | No drilling, no supports | 2026-03-11</p>
+
+<!-- ============================================================ -->
+<h2>1. Enclosure Overview</h2>
+<!-- ============================================================ -->
+
+<div class="grid grid-3">
+  <div class="card">
+    <h3>External Dimensions</h3>
+    <table>
+      <tr><td>Length</td><td class="highlight">140 mm</td></tr>
+      <tr><td>Width</td><td class="highlight">75 mm</td></tr>
+      <tr><td>Height</td><td class="highlight">38 mm</td></tr>
+      <tr><td>Wall thickness</td><td>2.5 mm</td></tr>
+      <tr><td>Corner radius</td><td>3 mm</td></tr>
+      <tr><td>Split height</td><td>19 mm</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Finger Joint</h3>
+    <table>
+      <tr><td>Finger width</td><td>8 mm</td></tr>
+      <tr><td>Finger depth</td><td>8 mm</td></tr>
+      <tr><td>Tolerance</td><td>0.2 mm/side</td></tr>
+      <tr><td>Corners</td><td>Front/back own corners</td></tr>
+      <tr><td>Openings</td><td>7 (auto at connectors)</td></tr>
+      <tr><td>Alignment</td><td>2x 3mm pins</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Printing</h3>
+    <table>
+      <tr><td>Material</td><td>PETG or ABS</td></tr>
+      <tr><td>Layers</td><td>0.2 mm</td></tr>
+      <tr><td>Walls</td><td>3 perimeters</td></tr>
+      <tr><td>Infill</td><td>20%</td></tr>
+      <tr><td>Supports</td><td class="highlight">None needed</td></tr>
+      <tr><td>Orientation</td><td>Both open-side-up</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Top View — Internal Layout with Modules</h2>
+<!-- ============================================================ -->
+
+<div class="card">
+  <svg viewBox="-20 -20 200 130" xmlns="http://www.w3.org/2000/svg">
+    <!-- Enclosure outer wall -->
+    <rect x="0" y="0" width="140" height="75" rx="3" ry="3"
+          fill="none" stroke="#555" stroke-width="1.5"/>
+    <!-- Inner cavity -->
+    <rect x="2.5" y="2.5" width="135" height="70" rx="1.5" ry="1.5"
+          fill="#0d1117" stroke="#333" stroke-width="0.5"/>
+
+    <!-- Finger joint pattern hint (top/bottom walls) -->
+    <g stroke="#444" stroke-width="0.4" fill="none">
+      <!-- Front wall fingers -->
+      <rect x="0" y="0" width="8" height="2.5"/>
+      <rect x="16" y="0" width="8" height="2.5"/>
+      <rect x="32" y="0" width="8" height="2.5"/>
+      <rect x="48" y="0" width="8" height="2.5"/>
+      <rect x="64" y="0" width="8" height="2.5"/>
+      <rect x="80" y="0" width="8" height="2.5"/>
+      <rect x="96" y="0" width="8" height="2.5"/>
+      <rect x="112" y="0" width="8" height="2.5"/>
+      <rect x="128" y="0" width="8" height="2.5"/>
+      <!-- Back wall fingers -->
+      <rect x="0" y="72.5" width="8" height="2.5"/>
+      <rect x="16" y="72.5" width="8" height="2.5"/>
+      <rect x="32" y="72.5" width="8" height="2.5"/>
+      <rect x="48" y="72.5" width="8" height="2.5"/>
+      <rect x="64" y="72.5" width="8" height="2.5"/>
+      <rect x="80" y="72.5" width="8" height="2.5"/>
+      <rect x="96" y="72.5" width="8" height="2.5"/>
+      <rect x="112" y="72.5" width="8" height="2.5"/>
+      <rect x="128" y="72.5" width="8" height="2.5"/>
+    </g>
+
+    <!-- PCB outline -->
+    <rect x="7.5" y="7.5" width="95" height="60" rx="0.5" ry="0.5"
+          fill="#1a3a1a" stroke="#4ecca3" stroke-width="0.8" opacity="0.7"/>
+    <text x="55" y="35" text-anchor="middle" class="label" fill="#4ecca3">PCB  95 x 60 mm</text>
+
+    <!-- PCB mounting holes -->
+    <g fill="#4ecca3" opacity="0.6">
+      <circle cx="11.5" cy="11.5" r="1.5"/>
+      <circle cx="98.5" cy="11.5" r="1.5"/>
+      <circle cx="11.5" cy="63.5" r="1.5"/>
+      <circle cx="98.5" cy="63.5" r="1.5"/>
+    </g>
+
+    <!-- ===== RELAY (right side of PCB) ===== -->
+    <rect x="70.5" y="19.5" width="24" height="20" rx="1" ry="1"
+          fill="#2a2a4a" stroke="#7a7aaa" stroke-width="0.5"/>
+    <text x="82.5" y="31" text-anchor="middle" class="label-sm" fill="#9a9aca">K1 Relay</text>
+    <text x="82.5" y="36" text-anchor="middle" class="label-sm" fill="#6a6a8a">29x27mm</text>
+
+    <!-- ===== MCU ===== -->
+    <rect x="50.5" y="27.5" width="10" height="10" rx="0.3"
+          fill="#2a3a4a" stroke="#5a8aba" stroke-width="0.4"/>
+    <text x="55.5" y="34" text-anchor="middle" class="label-sm" fill="#6a9aca">U1</text>
+
+    <!-- ===== USB connector (left edge) ===== -->
+    <rect x="5.5" y="29" width="6" height="8" rx="0.5"
+          fill="#3a3a5a" stroke="#aaa" stroke-width="0.4"/>
+    <text x="2" y="34" text-anchor="end" class="label-sm" fill="#aaa">USB</text>
+
+    <!-- ===== LoRa MODULE (RFM95W, plugged into J4) ===== -->
+    <rect x="43.5" y="45.5" width="16" height="16" rx="0.5" ry="0.5"
+          fill="#1a5a2a" stroke="#ff9f1c" stroke-width="1" opacity="0.9"/>
+    <rect x="45" y="47" width="13" height="11" rx="0.3"
+          fill="#666" stroke="#999" stroke-width="0.3" opacity="0.6"/>
+    <text x="51.5" y="54" text-anchor="middle" class="label-sm" fill="#fff" font-weight="bold">LoRa</text>
+    <text x="51.5" y="58" text-anchor="middle" class="label-sm" fill="#ff9f1c">RFM95W</text>
+    <text x="51.5" y="62" text-anchor="middle" class="label-sm" fill="#cc7a00">16x16mm</text>
+    <!-- Antenna wire going up -->
+    <line x1="44.5" y1="53" x2="44.5" y2="42" stroke="#e63946" stroke-width="1"/>
+    <line x1="44.5" y1="42" x2="30" y2="42" stroke="#e63946" stroke-width="1"/>
+    <text x="30" y="40" text-anchor="middle" class="label-sm" fill="#e63946">antenna whip</text>
+    <text x="30" y="44.5" text-anchor="middle" class="label-sm" fill="#c33">~82mm (915MHz)</text>
+
+    <!-- J4 header label -->
+    <line x1="51.5" y1="45.5" x2="51.5" y2="43" stroke="#aa9944" stroke-width="0.4" stroke-dasharray="1,1"/>
+    <text x="56" y="43" class="label-sm" fill="#aa9944">J4</text>
+
+    <!-- ===== GPS MODULE (BN-220, mounted on lid) ===== -->
+    <rect x="10" y="10" width="22" height="20" rx="1" ry="1"
+          fill="#1a1a4a" stroke="#00d2ff" stroke-width="1" opacity="0.8" stroke-dasharray="3,1.5"/>
+    <rect x="13" y="12" width="16" height="16" rx="0.5"
+          fill="#e8e0c8" stroke="#ccc" stroke-width="0.3" opacity="0.7"/>
+    <text x="21" y="20" text-anchor="middle" class="label-sm" fill="#1a1a4a" font-weight="bold">GPS</text>
+    <text x="21" y="24" text-anchor="middle" class="label-sm" fill="#00d2ff">BN-220</text>
+    <text x="21" y="32" text-anchor="middle" class="label-sm" fill="#0aa">on lid ↑</text>
+    <!-- Wire to J8 -->
+    <line x1="21" y1="30" x2="61.5" y2="51.5" stroke="#00d2ff" stroke-width="0.5" stroke-dasharray="2,1"/>
+    <text x="65" y="50" class="label-sm" fill="#aa9944">J8</text>
+
+    <!-- ===== 18650 BATTERY ===== -->
+    <rect x="108" y="10.5" width="18.5" height="54" rx="9" ry="9"
+          fill="#3a2a1a" stroke="#ff9f1c" stroke-width="1"/>
+    <text x="117" y="35" text-anchor="middle" class="label-sm" fill="#ff9f1c" transform="rotate(90,117,35)">18650 LiPo</text>
+    <text x="117" y="42" text-anchor="middle" class="label-sm" fill="#cc7a00" transform="rotate(90,117,42)">66 x 18.5mm</text>
+
+    <!-- Battery cradle outline -->
+    <rect x="106" y="8" width="22.5" height="59" rx="2" ry="2"
+          fill="none" stroke="#ff9f1c" stroke-width="0.3" stroke-dasharray="2,1"/>
+    <text x="117" y="6" text-anchor="middle" class="label-sm" fill="#996600">cradle + zip ties</text>
+
+    <!-- Zip tie positions -->
+    <line x1="104" y1="23" x2="130" y2="23" stroke="#ff9f1c" stroke-width="0.4" stroke-dasharray="1,1"/>
+    <line x1="104" y1="52" x2="130" y2="52" stroke="#ff9f1c" stroke-width="0.4" stroke-dasharray="1,1"/>
+    <text x="132" y="24" class="label-sm" fill="#996600">zip</text>
+    <text x="132" y="53" class="label-sm" fill="#996600">zip</text>
+
+    <!-- + terminal -->
+    <circle cx="117" cy="11" r="3" fill="none" stroke="#ddaa00" stroke-width="0.5"/>
+    <text x="117" y="12.5" text-anchor="middle" class="label-sm" fill="#ddaa00">+</text>
+
+    <!-- Battery wires to PCB -->
+    <line x1="108" y1="37.5" x2="102.5" y2="37.5" stroke="#c44" stroke-width="0.6"/>
+    <line x1="108" y1="39.5" x2="102.5" y2="39.5" stroke="#222" stroke-width="0.6"/>
+
+    <!-- ===== CONNECTOR OPENINGS (on walls) ===== -->
+    <!-- Left wall: USB -->
+    <rect x="-1" y="26" width="3.5" height="14" rx="0.5" fill="#3a86ff" opacity="0.2" stroke="#3a86ff" stroke-width="0.4"/>
+    <text x="-4" y="28" text-anchor="end" class="label-sm" fill="#3a86ff">USB</text>
+    <text x="-4" y="32" text-anchor="end" class="label-sm" fill="#3a86ff">opening</text>
+
+    <!-- Back wall: J1 12V -->
+    <rect x="14" y="72" width="12" height="3" rx="0.5" fill="#3a86ff" opacity="0.2" stroke="#3a86ff" stroke-width="0.4"/>
+    <text x="20" y="80" text-anchor="middle" class="label-sm" fill="#3a86ff">12V IN</text>
+
+    <!-- Back wall: J2 relay -->
+    <rect x="90" y="72" width="12" height="3" rx="0.5" fill="#3a86ff" opacity="0.2" stroke="#3a86ff" stroke-width="0.4"/>
+    <text x="96" y="80" text-anchor="middle" class="label-sm" fill="#3a86ff">RELAY OUT</text>
+
+    <!-- Back wall: LEDs -->
+    <rect x="46" y="72" width="18" height="3" rx="0.5" fill="#e63946" opacity="0.15" stroke="#e63946" stroke-width="0.4"/>
+    <text x="55" y="80" text-anchor="middle" class="label-sm" fill="#e63946">LEDs</text>
+
+    <!-- Front wall: cable entries -->
+    <rect x="43" y="-1" width="10" height="3" rx="0.5" fill="#3a86ff" opacity="0.2" stroke="#3a86ff" stroke-width="0.4"/>
+    <rect x="78" y="-1" width="10" height="3" rx="0.5" fill="#3a86ff" opacity="0.2" stroke="#3a86ff" stroke-width="0.4"/>
+    <text x="48" y="-4" text-anchor="middle" class="label-sm" fill="#3a86ff">cables</text>
+    <text x="83" y="-4" text-anchor="middle" class="label-sm" fill="#3a86ff">cables</text>
+
+    <!-- Right wall: battery wires -->
+    <rect x="138" y="30" width="3" height="10" rx="0.5" fill="#3a86ff" opacity="0.2" stroke="#3a86ff" stroke-width="0.4"/>
+    <text x="147" y="37" text-anchor="start" class="label-sm" fill="#3a86ff">batt</text>
+
+    <!-- Mounting flanges -->
+    <rect x="-10" y="26.5" width="10" height="22" rx="2" ry="2"
+          fill="none" stroke="#555" stroke-width="0.8"/>
+    <circle cx="-5" cy="37.5" r="2.5" fill="none" stroke="#666" stroke-width="0.5"/>
+    <rect x="140" y="26.5" width="10" height="22" rx="2" ry="2"
+          fill="none" stroke="#555" stroke-width="0.8"/>
+    <circle cx="145" cy="37.5" r="2.5" fill="none" stroke="#666" stroke-width="0.5"/>
+    <text x="-5" y="53" text-anchor="middle" class="label-sm" fill="#666">M4</text>
+    <text x="145" y="53" text-anchor="middle" class="label-sm" fill="#666">M4</text>
+
+    <!-- Alignment pins -->
+    <circle cx="12.5" cy="12.5" r="1.5" fill="none" stroke="#4ecca3" stroke-width="0.4" stroke-dasharray="1,1"/>
+    <circle cx="127.5" cy="62.5" r="1.5" fill="none" stroke="#4ecca3" stroke-width="0.4" stroke-dasharray="1,1"/>
+
+    <!-- Dimension lines -->
+    <line x1="0" y1="-12" x2="140" y2="-12" class="dim-line"/>
+    <line x1="0" y1="-9" x2="0" y2="-15" class="dim-line"/>
+    <line x1="140" y1="-9" x2="140" y2="-15" class="dim-line"/>
+    <text x="70" y="-14" text-anchor="middle" class="dim">140 mm</text>
+
+    <line x1="158" y1="0" x2="158" y2="75" class="dim-line"/>
+    <line x1="155" y1="0" x2="161" y2="0" class="dim-line"/>
+    <line x1="155" y1="75" x2="161" y2="75" class="dim-line"/>
+    <text x="168" y="40" text-anchor="middle" class="dim" transform="rotate(90,168,40)">75 mm</text>
+
+    <!-- Legend -->
+    <g transform="translate(-18, 90)">
+      <rect x="0" y="0" width="6" height="4" fill="#1a5a2a" stroke="#ff9f1c" stroke-width="0.5"/>
+      <text x="8" y="3.5" class="label-sm" fill="#ff9f1c">LoRa (on PCB headers)</text>
+
+      <rect x="0" y="7" width="6" height="4" fill="#1a1a4a" stroke="#00d2ff" stroke-width="0.5" stroke-dasharray="1,0.5"/>
+      <text x="8" y="10.5" class="label-sm" fill="#00d2ff">GPS (mounted on lid interior)</text>
+
+      <rect x="0" y="14" width="6" height="4" rx="2" fill="#3a2a1a" stroke="#ff9f1c" stroke-width="0.5"/>
+      <text x="8" y="17.5" class="label-sm" fill="#ff9f1c">18650 battery (in cradle)</text>
+
+      <rect x="0" y="21" width="6" height="4" fill="#3a86ff" opacity="0.2" stroke="#3a86ff" stroke-width="0.5"/>
+      <text x="8" y="24.5" class="label-sm" fill="#3a86ff">Wall opening (finger gap)</text>
+    </g>
+  </svg>
+  <p class="note">Top view with lid removed. GPS shown dashed because it mounts on the lid interior (faces sky). LoRa plugs into J4 header on PCB. Battery in printed cradle held by zip ties.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Side Cross-Section — Module Heights</h2>
+<!-- ============================================================ -->
+
+<div class="card">
+  <svg viewBox="-15 -15 190 90" xmlns="http://www.w3.org/2000/svg">
+    <!-- Base shell -->
+    <path d="M 3,57 L 3,3 Q 3,0 6,0 L 137,0 Q 140,0 140,3 L 140,57 Z"
+          fill="#1a1a1a" stroke="#555" stroke-width="1.2"/>
+    <!-- Floor -->
+    <rect x="3" y="54.5" width="134" height="2.5" fill="#2a2a2a" stroke="none"/>
+    <!-- Walls -->
+    <rect x="0" y="0" width="3" height="57" fill="#2a2a2a" stroke="#555" stroke-width="0.5"/>
+    <rect x="140" y="0" width="3" height="57" fill="#2a2a2a" stroke="#555" stroke-width="0.5"/>
+
+    <!-- Split line -->
+    <line x1="0" y1="19" x2="143" y2="19" stroke="#3a86ff" stroke-width="0.4" stroke-dasharray="3,2"/>
+    <text x="146" y="20" class="label-sm" fill="#3a86ff">split (19mm)</text>
+
+    <!-- Finger joint zones -->
+    <!-- Base fingers going up -->
+    <rect x="0" y="11" width="3" height="8" fill="#444" stroke="#666" stroke-width="0.3"/>
+    <rect x="140" y="11" width="3" height="8" fill="#444" stroke="#666" stroke-width="0.3"/>
+    <!-- Lid fingers going down (shown above split) -->
+
+    <!-- Lid -->
+    <rect x="0" y="-7" width="143" height="7" rx="1" ry="1"
+          fill="#2a2a2a" stroke="#555" stroke-width="1"/>
+    <!-- Lid walls -->
+    <rect x="0" y="-7" width="3" height="26" fill="#333" stroke="#555" stroke-width="0.3" opacity="0.5"/>
+    <rect x="140" y="-7" width="3" height="26" fill="#333" stroke="#555" stroke-width="0.3" opacity="0.5"/>
+    <text x="71" y="-2" text-anchor="middle" class="label-sm" fill="#888">LID</text>
+
+    <!-- Standoffs -->
+    <rect x="11" y="48.5" width="3" height="6" fill="#b8860b" stroke="#daa520" stroke-width="0.3"/>
+    <rect x="98" y="48.5" width="3" height="6" fill="#b8860b" stroke="#daa520" stroke-width="0.3"/>
+
+    <!-- PCB -->
+    <rect x="7.5" y="46.5" width="95" height="2" fill="#1a5a1a" stroke="#4ecca3" stroke-width="0.5"/>
+    <text x="55" y="45" text-anchor="middle" class="label-sm" fill="#4ecca3">PCB (1.6mm)</text>
+
+    <!-- Relay (tallest: 16mm) -->
+    <rect x="70.5" y="30.5" width="24" height="16" rx="0.5"
+          fill="#2a2a4a" stroke="#7a7aaa" stroke-width="0.5"/>
+    <text x="82.5" y="40" text-anchor="middle" class="label-sm" fill="#9a9aca">K1 Relay</text>
+    <text x="82.5" y="44" text-anchor="middle" class="label-sm" fill="#6a6a8a">16mm tall</text>
+
+    <!-- LoRa module (on headers, ~8mm pin + 3mm module = 11mm above PCB) -->
+    <rect x="38" y="37.5" width="2" height="9" fill="#aa9944" stroke="#cc9" stroke-width="0.2"/>
+    <rect x="43.5" y="35.5" width="16" height="3" fill="#1a5a2a" stroke="#ff9f1c" stroke-width="0.6"/>
+    <rect x="45" y="33.5" width="12" height="2" fill="#666" stroke="#999" stroke-width="0.3"/>
+    <text x="51.5" y="34.5" text-anchor="middle" class="label-sm" fill="#fff">LoRa</text>
+    <!-- Antenna wire -->
+    <line x1="44" y1="33.5" x2="44" y2="12" stroke="#e63946" stroke-width="0.8"/>
+    <text x="47" y="14" class="label-sm" fill="#e63946">antenna</text>
+
+    <!-- GPS module (on lid interior) -->
+    <rect x="10" y="0" width="22" height="1.2" fill="#1a1a4a" stroke="#00d2ff" stroke-width="0.6"/>
+    <rect x="13" y="-5.5" width="16" height="5.5" fill="#e8e0c8" stroke="#ccc" stroke-width="0.3" opacity="0.7"/>
+    <text x="21" y="-2" text-anchor="middle" class="label-sm" fill="#1a1a4a">GPS</text>
+    <text x="21" y="5" text-anchor="middle" class="label-sm" fill="#00d2ff">patch ant ↑</text>
+    <!-- Wire down to PCB -->
+    <line x1="21" y1="1.2" x2="40" y2="38" stroke="#00d2ff" stroke-width="0.4" stroke-dasharray="2,1"/>
+
+    <!-- Buzzer (~9.5mm) -->
+    <rect x="62" y="37" width="6" height="9.5" rx="1"
+          fill="#3a3a4a" stroke="#8a8a9a" stroke-width="0.3"/>
+    <text x="65" y="35.5" text-anchor="middle" class="label-sm" fill="#8a8a9a">BZ1</text>
+
+    <!-- USB connector through wall -->
+    <rect x="0" y="40" width="6" height="5" rx="0.5"
+          fill="#3a3a5a" stroke="#aaa" stroke-width="0.5"/>
+    <text x="-2" y="39" text-anchor="end" class="label-sm" fill="#aaa">USB</text>
+
+    <!-- 18650 Battery -->
+    <ellipse cx="117" cy="40" rx="9" ry="9"
+             fill="#3a2a1a" stroke="#ff9f1c" stroke-width="0.6" opacity="0.7"/>
+    <text x="117" y="41.5" text-anchor="middle" class="label-sm" fill="#ff9f1c">18650</text>
+    <text x="117" y="45" text-anchor="middle" class="label-sm" fill="#cc7a00">Ø18mm</text>
+
+    <!-- Battery cradle -->
+    <path d="M 108,49 Q 108,54 117,54 Q 126,54 126,49"
+          fill="none" stroke="#ff9f1c" stroke-width="0.8"/>
+
+    <!-- Dimension: total height -->
+    <line x1="152" y1="-7" x2="152" y2="57" class="dim-line"/>
+    <line x1="149" y1="-7" x2="155" y2="-7" class="dim-line"/>
+    <line x1="149" y1="57" x2="155" y2="57" class="dim-line"/>
+    <text x="162" y="27" text-anchor="middle" class="dim" transform="rotate(90,162,27)">38 mm total</text>
+
+    <!-- Dimension: standoff height -->
+    <line x1="16" y1="48.5" x2="16" y2="54.5" class="dim-line"/>
+    <text x="20" y="52.5" class="dim">6</text>
+
+    <!-- Dimension: component clearance -->
+    <line x1="55" y1="0" x2="55" y2="30.5" class="dim-line"/>
+    <text x="57" y="10" class="dim">~30mm</text>
+    <text x="57" y="16" class="label-sm" fill="#666">component</text>
+    <text x="57" y="21" class="label-sm" fill="#666">clearance</text>
+  </svg>
+  <p class="note">Cross-section along long axis. Relay is tallest at 16mm. LoRa module sits on 8mm header pins. GPS mounts flat on lid interior with ceramic patch facing up (through plastic). Battery sits in printed cradle beside PCB.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>4. Module Details</h2>
+<!-- ============================================================ -->
+
+<div class="grid grid-3">
+  <div class="card">
+    <h3 style="color: #ff9f1c">LoRa — RFM95W</h3>
+    <table>
+      <tr><td>Module</td><td>RFM95W / Ra-01</td></tr>
+      <tr><td>Size</td><td>16 x 16 x 3 mm</td></tr>
+      <tr><td>Interface</td><td>SPI (J4, 1x8 header)</td></tr>
+      <tr><td>Frequency</td><td>915 MHz (US)</td></tr>
+      <tr><td>Antenna</td><td>Wire whip ~82mm</td></tr>
+      <tr><td>Position</td><td>Center-left of PCB</td></tr>
+      <tr><td>Height</td><td>~11mm above PCB</td></tr>
+      <tr><td>Cost</td><td class="highlight">~$4</td></tr>
+    </table>
+    <p class="note">Plugs into J4 pin header. Keep away from relay (noise). Antenna runs along inside of enclosure wall. Optional: SMA bulkhead for external antenna.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="color: #00d2ff">GPS — BN-220</h3>
+    <table>
+      <tr><td>Module</td><td>BN-220 / Quectel L80</td></tr>
+      <tr><td>Size</td><td>22 x 20 x 6 mm</td></tr>
+      <tr><td>Interface</td><td>UART (J8, 1x4 header)</td></tr>
+      <tr><td>Antenna</td><td>Ceramic patch (integrated)</td></tr>
+      <tr><td>Position</td><td class="highlight">Lid interior, front-left</td></tr>
+      <tr><td>Mount</td><td>Double-sided tape / shelf</td></tr>
+      <tr><td>Cable</td><td>~60mm wire to J8</td></tr>
+      <tr><td>Cost</td><td class="highlight">~$5</td></tr>
+    </table>
+    <p class="note">Patch antenna MUST face sky. Plastic lid is RF-transparent. Mount flat against lid interior. Short cable to J8 on PCB.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="color: #ff9f1c">Battery — 18650</h3>
+    <table>
+      <tr><td>Cell</td><td>18650 Li-ion</td></tr>
+      <tr><td>Size</td><td>65 x 18 mm</td></tr>
+      <tr><td>Capacity</td><td>2600 mAh typical</td></tr>
+      <tr><td>Charging</td><td>MCP73831 via USB</td></tr>
+      <tr><td>Position</td><td>Right side of enclosure</td></tr>
+      <tr><td>Mount</td><td class="highlight">Printed cradle + 2x zip ties</td></tr>
+      <tr><td>Wires</td><td>20AWG to BT1 pads</td></tr>
+      <tr><td>Runtime</td><td>~50 hrs standby</td></tr>
+    </table>
+    <p class="note">Drops into semi-circular cradle. End walls prevent sliding. Two zip ties at 25% and 75% thread through floor channels and cinch over cell.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>5. RF Placement Strategy</h2>
+<!-- ============================================================ -->
+
+<div class="card">
+  <svg viewBox="-10 -10 180 100" xmlns="http://www.w3.org/2000/svg">
+    <!-- Enclosure outline -->
+    <rect x="0" y="0" width="140" height="75" rx="3" ry="3"
+          fill="#0d1117" stroke="#555" stroke-width="1"/>
+
+    <!-- QUIET ZONE (left) -->
+    <rect x="3" y="3" width="60" height="69" rx="1" fill="#0a2a1a" opacity="0.3"/>
+    <text x="33" y="15" text-anchor="middle" class="label" fill="#4ecca3">QUIET ZONE</text>
+    <text x="33" y="22" text-anchor="middle" class="label-sm" fill="#3a7a5a">RF modules here</text>
+
+    <!-- NOISY ZONE (right of PCB) -->
+    <rect x="65" y="3" width="40" height="69" rx="1" fill="#2a1a1a" opacity="0.3"/>
+    <text x="85" y="15" text-anchor="middle" class="label" fill="#e63946">NOISY ZONE</text>
+    <text x="85" y="22" text-anchor="middle" class="label-sm" fill="#c33">relay + buzzer</text>
+
+    <!-- BATTERY ZONE (far right) -->
+    <rect x="107" y="3" width="30" height="69" rx="1" fill="#2a1a0a" opacity="0.3"/>
+    <text x="122" y="15" text-anchor="middle" class="label" fill="#ff9f1c">BATTERY</text>
+    <text x="122" y="22" text-anchor="middle" class="label-sm" fill="#cc7a00">RF buffer</text>
+
+    <!-- GPS -->
+    <rect x="10" y="28" width="20" height="18" fill="#1a1a4a" stroke="#00d2ff" stroke-width="0.8" opacity="0.6"/>
+    <text x="20" y="39" text-anchor="middle" class="label-sm" fill="#00d2ff">GPS</text>
+
+    <!-- LoRa -->
+    <rect x="35" y="40" width="16" height="16" fill="#1a4a2a" stroke="#ff9f1c" stroke-width="0.8" opacity="0.6"/>
+    <text x="43" y="50" text-anchor="middle" class="label-sm" fill="#ff9f1c">LoRa</text>
+
+    <!-- MCU -->
+    <rect x="48" y="30" width="10" height="10" fill="#2a3a4a" stroke="#5a8aba" stroke-width="0.4"/>
+    <text x="53" y="37" text-anchor="middle" class="label-sm" fill="#6a9aca">MCU</text>
+
+    <!-- Relay -->
+    <rect x="68" y="25" width="24" height="20" fill="#2a2a4a" stroke="#7a7aaa" stroke-width="0.5"/>
+    <text x="80" y="37" text-anchor="middle" class="label-sm" fill="#9a9aca">K1</text>
+
+    <!-- Buzzer -->
+    <circle cx="77" cy="58" r="6" fill="none" stroke="#8a8a9a" stroke-width="0.4"/>
+    <text x="77" y="59" text-anchor="middle" class="label-sm" fill="#8a8a9a">BZ1</text>
+
+    <!-- Battery -->
+    <ellipse cx="122" cy="43" rx="8" ry="25" fill="#3a2a1a" stroke="#ff9f1c" stroke-width="0.6" opacity="0.5"/>
+
+    <!-- Separation arrows -->
+    <line x1="63" y1="40" x2="66" y2="40" stroke="#e63946" stroke-width="1.5"/>
+    <polygon points="66,38 70,40 66,42" fill="#e63946"/>
+    <text x="65" y="50" text-anchor="middle" class="label-sm" fill="#e63946">keep</text>
+    <text x="65" y="55" text-anchor="middle" class="label-sm" fill="#e63946">apart</text>
+
+    <line x1="103" y1="40" x2="106" y2="40" stroke="#ff9f1c" stroke-width="1"/>
+    <text x="105" y="50" text-anchor="middle" class="label-sm" fill="#996600">buffer</text>
+  </svg>
+  <p class="note"><span class="highlight">Key principle:</span> GPS and LoRa in the quiet left zone, relay and buzzer in the noisy right zone, battery acts as a passive RF buffer between them. GND copper pour on both PCB layers provides shielding.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>6. Wall Openings Map</h2>
+<!-- ============================================================ -->
+
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Front Wall (y = 0)</h3>
+    <table>
+      <tr><th>Opening</th><th>Position</th><th>Width</th><th>Purpose</th></tr>
+      <tr><td>Cable 1</td><td>x = 49</td><td>10 mm</td><td>Sensor wires</td></tr>
+      <tr><td>Cable 2</td><td>x = 84</td><td>10 mm</td><td>Zone wires</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Back Wall (y = 75)</h3>
+    <table>
+      <tr><th>Opening</th><th>Position</th><th>Width</th><th>Purpose</th></tr>
+      <tr><td>J1</td><td>x = 20</td><td>12 mm</td><td>12V power input</td></tr>
+      <tr><td>LEDs</td><td>x = 53</td><td>18 mm</td><td>LED1 + LED2 light pipes</td></tr>
+      <tr><td>J2</td><td>x = 96</td><td>12 mm</td><td>Relay COM/NO/NC</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Left Wall (x = 0)</h3>
+    <table>
+      <tr><th>Opening</th><th>Position</th><th>Width</th><th>Purpose</th></tr>
+      <tr><td>J7</td><td>y = 31</td><td>14 mm</td><td>USB Micro-B charging</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Right Wall (x = 140)</h3>
+    <table>
+      <tr><th>Opening</th><th>Position</th><th>Width</th><th>Purpose</th></tr>
+      <tr><td>Battery</td><td>y = 37.5</td><td>10 mm</td><td>Battery wire routing</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>7. Bill of Materials — Enclosure + Modules</h2>
+<!-- ============================================================ -->
+
+<div class="card">
+  <table>
+    <tr><th>Item</th><th>Qty</th><th>Spec</th><th>Est. Cost</th></tr>
+    <tr><td>3D printed base</td><td>1</td><td>140x75x19mm, PETG/ABS</td><td>$3-5</td></tr>
+    <tr><td>3D printed lid</td><td>1</td><td>140x75x19mm, PETG/ABS</td><td>$3-5</td></tr>
+    <tr><td>RFM95W LoRa module</td><td>1</td><td>SX1278, 915MHz, SPI</td><td>$4</td></tr>
+    <tr><td>BN-220 GPS module</td><td>1</td><td>Integrated patch antenna, UART</td><td>$5</td></tr>
+    <tr><td>18650 Li-ion cell</td><td>1</td><td>2600mAh, unprotected</td><td>$3</td></tr>
+    <tr><td>Wire antenna</td><td>1</td><td>~82mm for 915MHz quarter-wave</td><td>$0</td></tr>
+    <tr><td>Zip ties (small)</td><td>2</td><td>100mm, for battery hold-down</td><td>$0.10</td></tr>
+    <tr><td>M3x8 self-tap screws</td><td>4</td><td>PCB standoff (optional, friction fit)</td><td>$0.20</td></tr>
+    <tr><td>Double-sided tape</td><td>1</td><td>3M VHB, for GPS on lid</td><td>$0.10</td></tr>
+    <tr><td>20AWG wire</td><td>100mm</td><td>Battery leads (red + black)</td><td>$0.05</td></tr>
+    <tr style="border-top:2px solid var(--accent); font-weight:600">
+      <td colspan="3">Total enclosure + modules + battery</td><td class="highlight">$18-22</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ============================================================ -->
+<h2>8. Assembly Notes</h2>
+<!-- ============================================================ -->
+
+<div class="card">
+  <ul>
+    <li><b>No drilling.</b> All openings are formed by finger joint gaps — printed in place.</li>
+    <li><b>No supports.</b> Both pieces print open-side-up. All features are vertical extrusions.</li>
+    <li>Mount PCB on 4x standoffs in base (press-fit or self-tap M3 screws)</li>
+    <li>Plug LoRa module (RFM95W) into J4 header. Route antenna wire along left wall interior.</li>
+    <li>Stick GPS module (BN-220) to lid interior with VHB tape, front-left corner. Cable to J8.</li>
+    <li>Drop 18650 cell into cradle. Thread 2x zip ties through floor channels, cinch over cell.</li>
+    <li>Solder battery wires (20AWG, 50mm) from cell to BT1 pads on PCB</li>
+    <li>Route power wires (12V, relay) through back wall openings</li>
+    <li>Press lid down — fingers interleave with base, alignment pins register position</li>
+    <li>Optional: seal finger joint seams with silicone for weather resistance</li>
+  </ul>
+  <p class="note">For weather sealing: apply a thin bead of silicone to finger joint faces before closing. The tight finger mesh plus silicone provides good water resistance without gaskets.</p>
+</div>
+
+<p class="subtitle" style="margin-top:24px">MotoKey enclosure design v3 — 2026-03-11 | CAD: enclosure.scad (OpenSCAD)</p>
+</body>
+</html>
