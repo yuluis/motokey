@@ -1,3 +1,7 @@
+__pycache__/
 .DS_Store
-node_modules/
 .env
+*.pyc
+hardware/fp-info-cache
+hardware/motokey-lockbox-backups/
+node_modules/
